@@ -1,0 +1,31 @@
+<NavLink href="@($"gift/{Gift.Id}")" class="list-group-item list-group-item-action">
+    <div class="hstack justify-content-between align-items-center">
+        <span>
+            @Gift.Name
+
+            <span class="badge @BadgeClass">
+                @Gift.Status.ToString()
+            </span>
+        </span>
+
+        @if (Gift is { Price: > 0 })
+        {
+            <span class="text-body-secondary">
+                @Gift.Price.Value.ToString("C2")
+            </span>
+        }
+    </div>
+</NavLink>
+
+@code {
+    [Parameter]
+    public GiftDto Gift { get; set; } = null!;
+
+    string BadgeClass => Gift.Status switch
+    {
+        GiftStatus.Wrapped => "text-bg-success",
+        GiftStatus.Arrived => "text-bg-primary",
+        GiftStatus.Purchased => "text-bg-info",
+        _ => "text-bg-secondary"
+    };
+}

@@ -1,0 +1,38 @@
+﻿@page "/"
+@inject PersonService PersonService
+@inject GiftService GiftService
+
+<PageTitle>Home</PageTitle>
+
+<div class="hstack justify-content-end mb-3">
+    <NavLink href="/person" class="btn btn-outline-primary btn-sm">
+        Add Person
+    </NavLink>
+</div>
+
+@foreach (var person in People)
+{
+    var gifts = Gifts.Where(g => g.Person.Id == person.Id).ToList();
+
+    <PersonCard Person="@person" Gifts="@gifts" />
+}
+
+<div class="text-center mb-3">
+    Grand Total:
+    <strong>
+        @GrandTotal.ToString("C2")
+    </strong>
+</div>
+
+@code {
+    IEnumerable<PersonDto> People = [];
+    IEnumerable<GiftDto> Gifts = [];
+
+    decimal GrandTotal => Gifts.Sum(g => g.Price.GetValueOrDefault());
+
+    protected override async Task OnInitializedAsync()
+    {
+        People = await PersonService.GetPeopleAsync();
+        Gifts = await GiftService.GetGiftsAsync();
+    }
+}

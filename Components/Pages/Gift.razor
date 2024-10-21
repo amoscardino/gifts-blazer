@@ -1,0 +1,139 @@
+@page "/gift/{Id:long?}"
+@inject GiftService GiftService
+@inject PersonService PersonService
+@inject NavigationManager NavigationManager
+
+<PageTitle>@Title</PageTitle>
+
+<EditForm Model="Model" OnValidSubmit="HandleSubmit" FormName="GiftForm" class="card mb-4 border rounded shadow">
+    <DataAnnotationsValidator />
+
+    <div class="card-header">@Title</div>
+
+    <div class="card-body">
+        <div class="mb-3">
+            <label for="PersonName" class="form-label">
+                Person
+            </label>
+            <InputText @bind-Value="Model.Person.Name" id="PersonName" class="form-control" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label for="Name" class="form-label">
+                Gift
+            </label>
+            <InputText @bind-Value="Model.Name" id="Name" class="form-control" />
+            <ValidationMessage For="() => Model.Name" class="text-danger" />
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label for="Status" class="form-label">
+                        Status
+                    </label>
+                    <InputSelect @bind-Value="Model.Status" id="Status" class="form-select">
+                        @foreach (var value in Enum.GetValues<GiftStatus>())
+                        {
+                            <option value="@value">@value</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Model.Status" class="text-danger" />
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="mb-3">
+                    <label for="Price" class="form-label">
+                        Price
+                    </label>
+                    <InputNumber @bind-Value="Model.Price" id="Price" class="form-control" />
+                    <ValidationMessage For="() => Model.Price" class="text-danger" />
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="URL" class="form-label">
+                URL
+            </label>
+            <div class="row align-items-stretch">
+                <div class="col">
+                    <InputText @bind-Value="Model.URL" id="URL" class="form-control" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.URL))
+                {
+                    <div class="col-3 align-self-end text-end">
+                        <a href="@Model.URL" target="_blank" class="btn btn-outline-secondary d-block">
+                            View
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <ValidationMessage For="() => Model.URL" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="Notes" class="form-label">
+                Notes
+            </label>
+            <InputTextArea @bind-Value="Model.Notes" id="Notes" class="form-control" />
+            <ValidationMessage For="() => Model.Notes" class="text-danger" />
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <div class="hstack flex-row-reverse justify-content-between">
+            <button type="submit" class="btn btn-primary">
+                Save
+            </button>
+
+            @if (Model.Id != 0)
+            {
+                <button type="button" @onclick="HandleDelete" class="btn btn-outline-danger">
+                    Delete
+                </button>
+            }
+        </div>
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+</EditForm>
+
+@code {
+    [Parameter]
+    public long? Id { get; set; }
+
+    [SupplyParameterFromQuery]
+    public long? PersonId { get; set; }
+
+    GiftDto Model = new();
+
+    string Title => Id.HasValue ? "Edit Gift" : "New Gift";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id.HasValue)
+            Model = await GiftService.GetGiftAsync(Id.Value);
+        else if (PersonId.HasValue)
+            Model.Person = await PersonService.GetPersonAsync(PersonId.Value);
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id.HasValue)
+            await GiftService.UpdateGiftAsync(Model);
+        else
+            await GiftService.CreateGiftAsync(Model);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    async Task HandleDelete()
+    {
+        await GiftService.DeleteGiftAsync(Model.Id);
+        NavigationManager.NavigateTo("/");
+    }
+}
