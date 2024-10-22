@@ -8,12 +8,9 @@
             </span>
         </span>
 
-        @if (Gift is { Price: > 0 })
-        {
-            <span class="text-body-secondary">
-                @Gift.Price.Value.ToString("C2")
-            </span>
-        }
+        <span class="text-body-secondary">
+            @Gift.Price.GetValueOrDefault().ToString("C2")
+        </span>
     </div>
 </NavLink>
 

@@ -1,4 +1,4 @@
-using GiftsBlazor.Components;
+using GiftsBlazor.Pages;
 using GiftsBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
