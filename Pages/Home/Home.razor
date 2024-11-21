@@ -17,12 +17,22 @@
     <PersonCard Person="@person" Gifts="@gifts" />
 }
 
-<div class="text-center mb-3">
-    Grand Total:
-    <strong>
-        @GrandTotal.ToString("C2")
-    </strong>
-</div>
+@if (Gifts.Count() > 1)
+{
+    <div class="mt-5 mb-3 px-3">
+        <Progress Gifts="@Gifts" />
+    </div>
+}
+
+@if (Gifts.Count() > 0)
+{
+    <div class="text-center mb-3">
+        Grand Total:
+        <strong>
+            @GrandTotal.ToString("C2")
+        </strong>
+    </div>
+}
 
 @code {
     IEnumerable<PersonDto> People = [];

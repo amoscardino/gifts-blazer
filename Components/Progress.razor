@@ -1,0 +1,33 @@
+<div class="progress-stacked">
+    @foreach (var status in Enum.GetValues<GiftStatus>().Reverse())
+    {
+        var progressBg = GetProgressBg(status);
+        var width = GetWidth(status);
+
+        <div class="progress-bar @progressBg" style="width: @width%;"></div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<GiftDto> Gifts { get; set; } = [];
+
+    double GetWidth(GiftStatus status)
+    {
+        var total = Gifts.Count();
+        var count = Gifts.Count(g => g.Status == status);
+
+        return count / (double)total * 100;
+    }
+
+    string GetProgressBg(GiftStatus status)
+    {
+        return status switch
+        {
+            GiftStatus.Wrapped => "bg-success",
+            GiftStatus.Arrived => "bg-primary",
+            GiftStatus.Purchased => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}
